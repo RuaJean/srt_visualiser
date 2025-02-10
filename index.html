@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Visualizador de Trayectoria</title>
+    <link rel="stylesheet" href="styles.css" />
+    <!-- Estilos de Leaflet -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+</head>
+<body>
+    <div class="container">
+        <div class="controls">
+            <input type="file" id="fileInput" accept=".txt" />
+            <button onclick="startAnimation()">Iniciar animación</button>
+            Velocidad: <input type="range" id="speed" min="1" max="10" value="5">
+        </div>
+        <div id="map"></div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <script>
+        let map;
+        let coordinates = [];
+        let polyline;
+        let currentIndex = 0;
+        let animationTimeout;
+        let currentSpeed = 5; // Variable global que almacena el valor actual del slider
+
+        // Inicializar mapa
+        function initMap() {
+            map = L.map('map').setView([4.63, -74.08], 14);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+        }
+
+        // Actualizar currentSpeed al mover el slider sin interrumpir la animación
+        document.getElementById('speed').addEventListener('input', function() {
+            currentSpeed = parseInt(this.value, 10);
+        });
+
+        // Procesar archivo
+        document.getElementById('fileInput').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            const reader = new FileReader();
+            
+            reader.onload = function(event) {
+                const content = event.target.result;
+                parseCoordinates(content);
+            };
+            
+            reader.readAsText(file);
+        });
+
+        // Extraer coordenadas del archivo
+        function parseCoordinates(content) {
+            coordinates = [];
+            const lines = content.split('\n');
+            
+            lines.forEach(line => {
+                const latMatch = line.match(/latitude: ([\d.-]+)/);
+                const lonMatch = line.match(/longitude: ([\d.-]+)/);
+                
+                if (latMatch && lonMatch) {
+                    coordinates.push({
+                        lat: parseFloat(latMatch[1]),
+                        lng: parseFloat(lonMatch[1])
+                    });
+                }
+            });
+            
+            if (coordinates.length > 0) {
+                if (polyline) map.removeLayer(polyline);
+                polyline = L.polyline([], {color: 'red'}).addTo(map);
+            }
+        }
+
+        // Función para calcular el delay basado en el valor de velocidad
+        function calculateDelay(speed) {
+ 
+            let slow = (300 - (speed * 25)) / 2;
+            let fast = slow / 100;
+            let factor = (speed - 1) / 9; // Normaliza speed entre 0 y 1
+            return slow * (1 - factor) + fast * factor;
+        }
+
+        // Función recursiva para animar, usando currentSpeed (actualizado en tiempo real)
+        function animate() {
+            if (currentIndex < coordinates.length) {
+                const point = coordinates[currentIndex];
+                polyline.addLatLng([point.lat, point.lng]);
+                map.setView([point.lat, point.lng], 16);
+                currentIndex++;
+                const delay = calculateDelay(currentSpeed);
+                animationTimeout = setTimeout(animate, delay);
+            }
+        }
+
+        // Inicia la animación, reiniciando la trayectoria y usando animate()
+        function startAnimation() {
+            if (animationTimeout) clearTimeout(animationTimeout);
+            currentIndex = 0;
+            if (polyline) {
+                map.removeLayer(polyline);
+            }
+            polyline = L.polyline([], {color: 'red'}).addTo(map);
+            animate();
+        }
+
+        // Inicializar el mapa
+        initMap();
+    </script>
+</body>
+</html>

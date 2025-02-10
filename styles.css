@@ -1,0 +1,66 @@
+/* Reset básico */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* Estilos para el cuerpo de la página */
+body {
+    background: #f4f4f4;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+/* Contenedor principal centrado */
+.container {
+    width: 800px;
+    background: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    padding: 20px;
+    text-align: center;
+}
+
+/* Estilos para los controles */
+.controls {
+    margin-bottom: 20px;
+}
+
+.controls input[type="file"] {
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+.controls button {
+    background: #007bff;
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    margin-left: 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+
+.controls button:hover {
+    background: #0056b3;
+}
+
+.controls input[type="range"] {
+    vertical-align: middle;
+    margin-left: 10px;
+}
+
+/* Estilos para el mapa: cuadrado y centrado */
+#map {
+    width: 600px;
+    height: 600px;
+    margin: 0 auto;
+    border: 2px solid #ddd;
+    border-radius: 4px;
+}
